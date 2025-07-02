@@ -8,14 +8,20 @@ app.use(cors());
 
 app.get('/rate', async (req, res) => {
   try {
-    const response = await axios.get('https://api.api-ninjas.com/v1/exchangerate?pair=USD_CAD', {
+    const response = await axios.get('https://api.currencyfreaks.com/v2.0/rates/latest?symbols=XAU,CAD,USD', {
       headers: {
-        'X-Api-Key': process.env.API_KEY
+        // CurrencyFreaks does not require API key in headers, uses query param instead
+        // So the key is in the URL as ?apikey=...
+      },
+      params: {
+        apikey: process.env.API_KEY
       }
     });
-    res.json(response.data);
-  } catch (err) {
-    console.error(err);
+
+    // Return only the rates object to the frontend
+    res.json(response.data.rates);
+  } catch (error) {
+    console.error('API Error:', error.response?.data || error.message);
     res.status(500).json({ error: 'Failed to fetch exchange rate' });
   }
 });
